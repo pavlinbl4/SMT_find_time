@@ -55,16 +55,23 @@ if __name__ == '__main__':
     soup = get_soup(enter_cabinet())
     month = soup.find('div', class_='datepicker-days').find(class_="datepicker-switch").text
     trs = soup.find('div', class_='datepicker-days').find('tbody').find_all('tr')
+    active_day = soup.find('div', class_='datepicker-days').find(class_="active day").text
+    other_days = soup.find('div', class_='datepicker-days').find_all(class_="new day")
+    all_days = soup.find('div', class_='datepicker-days').find_all(class_="day")
+
     # print(f'ближайщий день  {active_day.text} {month}')
     # other_days = soup.find('div',class_='datepicker-days').find('tbody').find_all(class_="day")
     print(soup.find(class_="fio").text)
-    print(type(soup.find(class_="fio")))
+    # print(type(soup.find(class_="fio")))
     print(month)
-    print(len(trs))
-    print(type(trs))
-    for tr in trs:
-        for i in tr.find_all('td'):
-            print(i)
-            print(i.find("td", class_="new day disabled"))
-            print(type(i))
-        # print(tr.find_all('td', class_="active day"))
+    # print(len(trs))
+    # print(type(trs))
+    print(f"{active_day = }")
+    print([i.text for i in all_days if  'disabled' not in i.get('class')])
+    print([i.text for i in other_days])
+    # for tr in trs:
+    #     for i in tr.find_all('td'):
+    #         print(i)
+    #         print(i.find("td", class_="new day disabled"))
+    #         print(type(i))
+    #     # print(tr.find_all('td', class_="active day"))
