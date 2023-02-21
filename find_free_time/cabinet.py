@@ -25,16 +25,16 @@ def enter_cabinet():
 
     browser.find_element(By.NAME, 'Login').click()
 
-    WebDriverWait(browser, 10).until(
+    WebDriverWait(browser, 20).until(
         EC.presence_of_element_located((By.CLASS_NAME, "--online-order")))
     browser.find_element(By.CLASS_NAME, "--online-order").click()
-    WebDriverWait(browser, 10).until(
+    WebDriverWait(browser, 20).until(
         EC.presence_of_element_located((By.CLASS_NAME, "appointment-online__form")))
 
-    Select(WebDriverWait(browser, 10).until(
+    Select(WebDriverWait(browser, 20).until(
         EC.element_to_be_clickable((By.ID, "POPUP_SPECIALIZATION")))).select_by_value("29889")
 
-    Select(WebDriverWait(browser, 10).until(
+    Select(WebDriverWait(browser, 20).until(
         EC.element_to_be_clickable((By.CSS_SELECTOR,
                                     "body > main > section > form > "
                                     "fieldset.appointment-online__form-fieldset.--col-2.step4 >"
@@ -47,17 +47,24 @@ def enter_cabinet():
 
     # time.sleep(10)
 
-    # browser.close()
-    # browser.quit()
+    browser.close()
+    browser.quit()
 
 
 if __name__ == '__main__':
     soup = get_soup(enter_cabinet())
     month = soup.find('div', class_='datepicker-days').find(class_="datepicker-switch").text
-    active_day = soup.find('div', class_='datepicker-days').find_all('tr')
+    trs = soup.find('div', class_='datepicker-days').find('tbody').find_all('tr')
     # print(f'ближайщий день  {active_day.text} {month}')
     # other_days = soup.find('div',class_='datepicker-days').find('tbody').find_all(class_="day")
     print(soup.find(class_="fio").text)
+    print(type(soup.find(class_="fio")))
     print(month)
-    for i in active_day:
-        print(i)
+    print(len(trs))
+    print(type(trs))
+    for tr in trs:
+        for i in tr.find_all('td'):
+            print(i)
+            print(i.find("td", class_="new day disabled"))
+            print(type(i))
+        # print(tr.find_all('td', class_="active day"))
