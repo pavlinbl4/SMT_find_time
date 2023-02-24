@@ -7,6 +7,7 @@ from must_have.crome_options import setting_chrome_options
 from must_have.credentials import get_credentials
 from must_have.soup import get_soup
 import time
+from doctor_and_specialization import find_specialization
 
 
 def select_specealization(specialization_index):
@@ -20,7 +21,7 @@ def select_doctor(doctor_index):
                                     "body > main > section > form > "
                                     "fieldset.appointment-online__form-fieldset.--col-2.step4 >"
                                     " label > div > select"))))
-    time.sleep(5)
+    time.sleep(10)
     doctor.select_by_value(doctor_index)
 
 
@@ -80,12 +81,11 @@ def enter_cabinet():
 if __name__ == '__main__':
     browser = webdriver.Chrome(options=setting_chrome_options())
     enter_cabinet()  # authorisation only
-    # select_specealization("29889")  # select specialisation  дерматология
-    select_specealization("6106")  # select specialisation  гастроэнтология
-    # select_doctor("4001454")
-    # select_doctor("4001728")  # Марченко
-    select_doctor("4000957")  # Гаглоева
-    # select_doctor("4000392")  # Алферов
+
+    specialization, doctor_id = find_specialization('Тарасова')
+    select_specealization(specialization)  # select specialisation
+    select_doctor(doctor_id)
+
     page_html = select_clinic()
 
     month, active_day, active_day_time, address, doctor_family_name, all_days = get_information_from_page(page_html)
