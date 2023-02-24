@@ -25,7 +25,7 @@ def select_doctor(doctor_index):
     doctor.select_by_value(doctor_index)
 
 
-def get_information_from_page(page_html):  # receive information from page fo activ day for selected doctor
+def get_information_from_page():  # receive information from page fo activ day for selected doctor
     soup = get_soup(page_html)
     month = soup.find('div', class_='datepicker-days').find(class_="datepicker-switch").text  # current month
     active_day = soup.find('div', class_='datepicker-days').find(class_="active day").text  # activ (selected) day
@@ -44,9 +44,9 @@ def select_day_from_list(day_number):
     day.click()
 
 
-def appointment_date_and_time(active_day_time, all_days):
+def appointment_date_and_time():
     time_in_active_day_list = [x.text for x in active_day_time]
-    aviable_days_list = [i.text for i in all_days if 'disabled' not in i.get('class')]
+    aviable_days_list = [day.text for day in all_days if 'disabled' not in day.get('class')]
     return aviable_days_list, time_in_active_day_list
 
 
@@ -78,34 +78,42 @@ def enter_cabinet():
         EC.presence_of_element_located((By.CLASS_NAME, "appointment-online__form")))
 
 
+def sent_doctor_info_to_site(doctors_last_name):
+    specialization, doctor_id = find_specialization(doctors_last_name)
+    select_specealization(specialization)  # select specialisation
+    select_doctor(doctor_id)
+
+
 if __name__ == '__main__':
     browser = webdriver.Chrome(options=setting_chrome_options())
     enter_cabinet()  # authorisation only
 
-    specialization, doctor_id = find_specialization('Тарасова')
-    select_specealization(specialization)  # select specialisation
-    select_doctor(doctor_id)
+    for person in ['Гаглоева', 'Тарасова', 'Марченко']:
+        sent_doctor_info_to_site(person)
+        page_html = select_clinic()
 
-    page_html = select_clinic()
+        month, active_day, active_day_time, address, doctor_family_name, all_days = get_information_from_page()
 
-    month, active_day, active_day_time, address, doctor_family_name, all_days = get_information_from_page(page_html)
-
-    appointment_dict = {}
-
-    aviable_days_list, time_in_active_day_list = appointment_date_and_time(active_day_time, all_days)
-    appointment_dict[active_day] = time_in_active_day_list
-
-    for i in range(1, len(aviable_days_list)):
-        select_day_from_list(aviable_days_list[i])
-        page_html = browser.page_source
-        month, active_day, active_day_time, address, doctor_family_name, all_days = get_information_from_page(page_html)
-        aviable_days_list, time_in_active_day_list = appointment_date_and_time(active_day_time, all_days)
+        appointment_dict = {}
+        aviable_days_list, time_in_active_day_list = appointment_date_and_time()
         appointment_dict[active_day] = time_in_active_day_list
 
-    print(doctor_family_name)
-    print(address)
-    print(month)
-    for i in appointment_dict:
-        print(i, appointment_dict[i])
+        for i in range(1, len(aviable_days_list)):
+            select_day_from_list(aviable_days_list[i])
+            page_html = browser.page_source
+            month, active_day, active_day_time, address, doctor_family_name, all_days = get_information_from_page()
+            aviable_days_list, time_in_active_day_list = appointment_date_and_time()
+            appointment_dict[active_day] = time_in_active_day_list
+
+        print(doctor_family_name)
+        print(address)
+        print(month)
+        for i in appointment_dict:
+            print(i, appointment_dict[i])
+        print("*" * 200)
+        # browser.find_element(By.XPATH, '/html/body/header[1]/div/div[2]/a/img').click()
+        # time.sleep(5)
+        browser.get('https://clinic-complex.ru/cabinet/visits/schedule/')
+        time.sleep(5)
     browser.close()
     browser.quit()
