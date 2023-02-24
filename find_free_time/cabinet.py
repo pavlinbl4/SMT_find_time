@@ -16,12 +16,13 @@ def select_specealization(specialization_index):
 
 
 def select_doctor(doctor_index):
-    doctor = Select(WebDriverWait(browser, 5).until(
+    doctor = Select(WebDriverWait(browser, 1).until(
         EC.element_to_be_clickable((By.CSS_SELECTOR,
                                     "body > main > section > form > "
                                     "fieldset.appointment-online__form-fieldset.--col-2.step4 >"
                                     " label > div > select"))))
-    time.sleep(10)
+
+    time.sleep(5)
     doctor.select_by_value(doctor_index)
 
 
@@ -84,36 +85,41 @@ def sent_doctor_info_to_site(doctors_last_name):
     select_doctor(doctor_id)
 
 
+def possible_data_to_dict():
+    possible_days_list, time_in_active_day_list = appointment_date_and_time()
+    appointment_dict[active_day] = time_in_active_day_list
+    return possible_days_list
+
+
 if __name__ == '__main__':
     browser = webdriver.Chrome(options=setting_chrome_options())
     enter_cabinet()  # authorisation only
 
-    for person in ['Гаглоева', 'Тарасова', 'Марченко']:
+    for person in ['Тарасова', 'Марченко', 'Алферов', 'Гаглоева']:
         sent_doctor_info_to_site(person)
         page_html = select_clinic()
 
         month, active_day, active_day_time, address, doctor_family_name, all_days = get_information_from_page()
 
         appointment_dict = {}
-        aviable_days_list, time_in_active_day_list = appointment_date_and_time()
-        appointment_dict[active_day] = time_in_active_day_list
+        possible_days_list = possible_data_to_dict()
 
-        for i in range(1, len(aviable_days_list)):
-            select_day_from_list(aviable_days_list[i])
+        for i in range(1, len(possible_days_list)):
+            select_day_from_list(possible_days_list[i])
             page_html = browser.page_source
             month, active_day, active_day_time, address, doctor_family_name, all_days = get_information_from_page()
-            aviable_days_list, time_in_active_day_list = appointment_date_and_time()
-            appointment_dict[active_day] = time_in_active_day_list
+            possible_data_to_dict()
 
-        print(doctor_family_name)
-        print(address)
-        print(month)
-        for i in appointment_dict:
-            print(i, appointment_dict[i])
-        print("*" * 200)
-        # browser.find_element(By.XPATH, '/html/body/header[1]/div/div[2]/a/img').click()
-        # time.sleep(5)
+        if address.strip() == 'Адрес приема: Московский пр-т, 22'.strip():
+            print(doctor_family_name)
+            print(address)
+            print(month)
+            for i in appointment_dict:
+                print(i, appointment_dict[i])
+            print("*" * 200)
+        else:
+            print(f'{doctor_family_name} not available in Московский пр-т, 22')
         browser.get('https://clinic-complex.ru/cabinet/visits/schedule/')
-        time.sleep(5)
+        WebDriverWait(browser, 20).until(lambda d: d.find_element(By.NAME, 'EMAIL'))
     browser.close()
     browser.quit()
