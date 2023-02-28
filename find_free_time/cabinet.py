@@ -3,20 +3,24 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
+
+from Save_pickle_file.save_data import save_data_pickle
 from must_have.crome_options import setting_chrome_options
 from must_have.credentials import get_credentials
 from must_have.soup import get_soup
 import time
 from doctor_and_specialization import find_specialization
+from xlsx_tools.create_XLXS_report_file import create_report
+from xlsx_tools.write_to_xlsx import write_to_xlsx
 
 
-def select_specealization(specialization_index):
+def select_specialization(specialization_index):
     Select(WebDriverWait(browser, 20).until(
         EC.element_to_be_clickable((By.ID, "POPUP_SPECIALIZATION")))).select_by_value(specialization_index)
 
 
 def select_doctor(doctor_index):
-    doctor = Select(WebDriverWait(browser, 1).until(
+    doctor = Select(WebDriverWait(browser, 15).until(
         EC.element_to_be_clickable((By.CSS_SELECTOR,
                                     "body > main > section > form > "
                                     "fieldset.appointment-online__form-fieldset.--col-2.step4 >"
@@ -81,7 +85,7 @@ def enter_cabinet():
 
 def sent_doctor_info_to_site(doctors_last_name):
     specialization, doctor_id = find_specialization(doctors_last_name)
-    select_specealization(specialization)  # select specialisation
+    select_specialization(specialization)  # select specialisation
     select_doctor(doctor_id)
 
 
@@ -93,8 +97,10 @@ def possible_data_to_dict():
 
 if __name__ == '__main__':
     browser = webdriver.Chrome(options=setting_chrome_options())
+    path_to_file = create_report("SMT_clinic", "appointments", 'clinic', ['doctor', 'appoinment_date', 'comments'])
     enter_cabinet()  # authorisation only
 
+    count = 0
     for person in ['Тарасова', 'Марченко', 'Алферов', 'Гаглоева']:
         sent_doctor_info_to_site(person)
         page_html = select_clinic()
@@ -117,8 +123,12 @@ if __name__ == '__main__':
             for i in appointment_dict:
                 print(i, appointment_dict[i])
             print("*" * 200)
+
         else:
             print(f'{doctor_family_name} not available in Московский пр-т, 22')
+        # write_to_xlsx(doctor_family_name, appointment_dict, path_to_file, count)
+        save_data_pickle(appointment_dict, doctor_family_name.replace(' ', '_'))
+        count += 1
         browser.get('https://clinic-complex.ru/cabinet/visits/schedule/')
         WebDriverWait(browser, 20).until(lambda d: d.find_element(By.NAME, 'EMAIL'))
     browser.close()
