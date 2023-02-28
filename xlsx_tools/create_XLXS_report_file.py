@@ -1,16 +1,11 @@
 from openpyxl import load_workbook
-from openpyxl import Workbook
 import os
 from must_have.make_documents_subfolder import make_documents_subfolder
 from openpyxl.styles import (
-                        PatternFill, Border, Side,
-                        Alignment, Font, GradientFill
-                        )
+    PatternFill, Border, Side,
+    Alignment, Font
+)
 from openpyxl import Workbook
-from openpyxl.styles import PatternFill
-
-from openpyxl.styles.differential import DifferentialStyle
-from openpyxl.formatting.rule import Rule
 
 
 def create_report_file(report_folder, file_name, sheet_name, list_with_columns_names):
@@ -29,26 +24,34 @@ def create_report_file(report_folder, file_name, sheet_name, list_with_columns_n
     ws.column_dimensions['B'].width = 50
     ws.column_dimensions['C'].width = 50  # задаю ширину колонки
 
+    ws.row_dimensions[1].height = 30
 
     ws['A1'] = list_with_columns_names[0]  # create columns names
     ws['B1'] = list_with_columns_names[1]
     ws['C1'] = list_with_columns_names[2]
+    ws['A1'].font = Font(size=18, bold=True)
+    ws['B1'].font = Font(size=18, bold=True)
+    ws['C1'].font = Font(size=18, bold=True)
+    ws['A1'].alignment = Alignment(horizontal='center')
+    ws['B1'].alignment = Alignment(horizontal='center')
+    ws['C1'].alignment = Alignment(horizontal='center')
+    ws['A1'].fill = PatternFill('solid', fgColor="DDDDDD")
+    ws['B1'].fill = PatternFill('solid', fgColor="DDDDDD")
+    ws['C1'].fill = PatternFill('solid', fgColor="DDDDDD")
 
-    # bg_red = PatternFill(fill_type='solid', fgColor="FFC7CE")
-    # dxf = DifferentialStyle(fill=bg_red)
-    # rule = Rule(type="expression", dxf=dxf,  stopIfTrue=True)
-    # rule.formula = ['$А1="doctor"']
-    # ws.conditional_formatting.add("A1:C1", rule)
+    thins = Side(border_style="double", color="1d51e7")
+
+    ws['A1'].border = Border(top=thins, bottom=thins, left=thins, right=thins)
+    ws['B1'].border = Border(top=thins, bottom=thins, left=thins, right=thins)
+    ws['C1'].border = Border(top=thins, bottom=thins, left=thins, right=thins)
 
     wb.save(path_to_file)
 
     return path_to_file
 
 
-def create_report(subfolder_name, file_name, sheet_name, list_with_columns_names): # return path to file
+def create_report(subfolder_name, file_name, sheet_name, list_with_columns_names):  # return path to file
     return create_report_file(make_documents_subfolder(subfolder_name), file_name, sheet_name, list_with_columns_names)
-
-
 
 
 if __name__ == '__main__':
