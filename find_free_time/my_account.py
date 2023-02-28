@@ -30,5 +30,8 @@ def enter_cabinet():
     WebDriverWait(browser, 20).until(
         EC.presence_of_element_located((By.CLASS_NAME, "appointment-online__form")))
 
+    return browser
+
+
 if __name__ == '__main__':
     enter_cabinet()
