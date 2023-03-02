@@ -3,7 +3,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
-
 from Save_pickle_file.save_data import save_data_pickle
 from must_have.crome_options import setting_chrome_options
 from must_have.credentials import get_credentials
@@ -11,7 +10,6 @@ from must_have.soup import get_soup
 import time
 from doctor_and_specialization import find_specialization
 from xlsx_tools.create_XLXS_report_file import create_report
-from xlsx_tools.write_to_xlsx import write_to_xlsx
 
 
 def select_specialization(specialization_index):
@@ -30,7 +28,7 @@ def select_doctor(doctor_index):
     doctor.select_by_value(doctor_index)
 
 
-def get_information_from_page():  # receive information from page fo activ day for selected doctor
+def get_information_from_page(page_html):  # receive information from page fo activ day for selected doctor
     soup = get_soup(page_html)
     month = soup.find('div', class_='datepicker-days').find(class_="datepicker-switch").text  # current month
     active_day = soup.find('div', class_='datepicker-days').find(class_="active day").text  # activ (selected) day
@@ -49,7 +47,7 @@ def select_day_from_list(day_number):
     day.click()
 
 
-def appointment_date_and_time():
+def appointment_date_and_time(active_day_time, all_days):
     time_in_active_day_list = [x.text for x in active_day_time]
     aviable_days_list = [day.text for day in all_days if 'disabled' not in day.get('class')]
     return aviable_days_list, time_in_active_day_list
@@ -89,32 +87,32 @@ def sent_doctor_info_to_site(doctors_last_name):
     select_doctor(doctor_id)
 
 
-def possible_data_to_dict():
-    possible_days_list, time_in_active_day_list = appointment_date_and_time()
+def possible_data_to_dict(appointment_dict, active_day):
+    possible_days_list, time_in_active_day_list = appointment_date_and_time(appointment_dict, active_day)
     appointment_dict[active_day] = time_in_active_day_list
     return possible_days_list
 
 
-if __name__ == '__main__':
-    browser = webdriver.Chrome(options=setting_chrome_options())
-    path_to_file = create_report("SMT_clinic", "appointments", 'clinic', ['doctor', 'appoinment_date', 'comments'])
+def get_information_about_doctors_and_save_it():  # main function
+    create_report("SMT_clinic", "appointments", 'clinic', ['doctor', 'appoinment_date', 'comments']) # create report file
     enter_cabinet()  # authorisation only
 
     count = 0
-    for person in ['Тарасова', 'Марченко', 'Алферов', 'Гаглоева']:
+    for person in ['Тарасова', 'Марченко', 'Гаглоева']:
         sent_doctor_info_to_site(person)
         page_html = select_clinic()
 
-        month, active_day, active_day_time, address, doctor_family_name, all_days = get_information_from_page()
+        month, active_day, active_day_time, address, doctor_family_name, all_days = get_information_from_page(page_html)
 
         appointment_dict = {}
-        possible_days_list = possible_data_to_dict()
+        possible_days_list = possible_data_to_dict(appointment_dict, active_day)
 
         for i in range(1, len(possible_days_list)):
             select_day_from_list(possible_days_list[i])
             page_html = browser.page_source
-            month, active_day, active_day_time, address, doctor_family_name, all_days = get_information_from_page()
-            possible_data_to_dict()
+            month, active_day, active_day_time, address, doctor_family_name, all_days = get_information_from_page(
+                page_html)
+            possible_data_to_dict(appointment_dict, active_day)
 
         if address.strip() == 'Адрес приема: Московский пр-т, 22'.strip():
             print(doctor_family_name)
@@ -126,10 +124,15 @@ if __name__ == '__main__':
 
         else:
             print(f'{doctor_family_name} not available in Московский пр-т, 22')
-        # write_to_xlsx(doctor_family_name, appointment_dict, path_to_file, count)
-        save_data_pickle(appointment_dict, doctor_family_name.replace(' ', '_'))
+        save_data_pickle(appointment_dict,
+                         doctor_family_name.replace(' ', '_'))  # сохраняю данные по интересующим меня врачам
         count += 1
         browser.get('https://clinic-complex.ru/cabinet/visits/schedule/')
         WebDriverWait(browser, 20).until(lambda d: d.find_element(By.NAME, 'EMAIL'))
     browser.close()
     browser.quit()
+
+
+if __name__ == '__main__':
+    browser = webdriver.Chrome(options=setting_chrome_options())
+    get_information_about_doctors_and_save_it()
