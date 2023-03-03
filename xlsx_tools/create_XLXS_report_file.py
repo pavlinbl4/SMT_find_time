@@ -6,6 +6,7 @@ from openpyxl.styles import (
     Alignment, Font
 )
 from openpyxl import Workbook
+import string
 
 
 def create_report_file(report_folder, file_name, sheet_name, list_with_columns_names):
@@ -20,30 +21,23 @@ def create_report_file(report_folder, file_name, sheet_name, list_with_columns_n
         ws = wb.active  # если файа еще нет
         ws.title = sheet_name  # если файда еще нет
 
-    ws.column_dimensions['A'].width = 50
-    ws.column_dimensions['B'].width = 50
-    ws.column_dimensions['C'].width = 50  # задаю ширину колонки
-
     ws.row_dimensions[1].height = 30
+    ws.row_dimensions[2].height = 10
 
-    ws['A1'] = list_with_columns_names[0]  # create columns names
-    ws['B1'] = list_with_columns_names[1]
-    ws['C1'] = list_with_columns_names[2]
-    ws['A1'].font = Font(size=18, bold=True)
-    ws['B1'].font = Font(size=18, bold=True)
-    ws['C1'].font = Font(size=18, bold=True)
-    ws['A1'].alignment = Alignment(horizontal='center')
-    ws['B1'].alignment = Alignment(horizontal='center')
-    ws['C1'].alignment = Alignment(horizontal='center')
-    ws['A1'].fill = PatternFill('solid', fgColor="DDDDDD")
-    ws['B1'].fill = PatternFill('solid', fgColor="DDDDDD")
-    ws['C1'].fill = PatternFill('solid', fgColor="DDDDDD")
+    ws.row_dimensions[3].height = 40
+    ws.row_dimensions[4].height = 40
+    ws.row_dimensions[5].height = 40
 
-    thins = Side(border_style="double", color="1d51e7")
+    capital_letters = string.ascii_uppercase
+    for x in range(len(list_with_columns_names)):
+        ws.column_dimensions[f'{capital_letters[x]}'].width = 50  # задаю ширину колонки
+        ws[f'{capital_letters[x]}1'] = list_with_columns_names[x]
+        ws[f'{capital_letters[x]}1'].font = Font(size=18, bold=True)
+        ws[f'{capital_letters[x]}1'].alignment = Alignment(horizontal='center')
+        ws[f'{capital_letters[x]}1'].fill = PatternFill('solid', fgColor="DDDDDD")
 
-    ws['A1'].border = Border(top=thins, bottom=thins, left=thins, right=thins)
-    ws['B1'].border = Border(top=thins, bottom=thins, left=thins, right=thins)
-    ws['C1'].border = Border(top=thins, bottom=thins, left=thins, right=thins)
+        thins = Side(border_style="double", color="1d51e7")
+        ws[f'{capital_letters[x]}1'].border = Border(top=thins, bottom=thins, left=thins, right=thins)
 
     wb.save(path_to_file)
 
@@ -55,4 +49,4 @@ def create_report(subfolder_name, file_name, sheet_name, list_with_columns_names
 
 
 if __name__ == '__main__':
-    print(create_report("SMT_clinic", "appointments", 'clinic', ['doctor', 'appoinment_date', 'comments']))
+    print(create_report("SMT_clinic", "appointments", 'clinic', ['doctor', 'appoinment_date', 'comments', 'ygjhghg']))
