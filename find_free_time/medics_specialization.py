@@ -1,5 +1,6 @@
 from find_free_time.my_account import enter_cabinet
 from find_free_time.specialization import select_specialization
+from must_have.make_subfolder import m_subfolder
 from must_have.soup import get_soup
 import io
 from selenium.webdriver.support import expected_conditions as EC
@@ -27,6 +28,11 @@ def get_html(specialization_index):
 
 
 if __name__ == '__main__':
-    soup = get_soup(get_html("32361"))
+    spec_id = "6106"
+    soup = get_soup(get_html(spec_id))
     specialists = soup.find('select', {'name': 'SPECIALIST'})
-    print(specialists)
+    medics = specialists.find_all('option')
+    with open(f'{m_subfolder("Medics")}/{spec_id}', 'w') as input_file:
+        for x in medics:
+            input_file.write(f'{x.get("value")} - {x.text}\n')
+
