@@ -9,7 +9,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 
 
-def save_html_page(browser, specialization_index):
+def save_html_page(browser):
     with io.open(browser.title + ".html", "w", encoding="utf-8") as f:
         f.write(browser.page_source)
         f.close()
@@ -23,16 +23,25 @@ def get_html(specialization_index):
                                     "body > main > section > form > "
                                     "fieldset.appointment-online__form-fieldset.--col-2.step4 >"
                                     " label > div > select"))))
-    save_html_page(browser, specialization_index)
+    save_html_page(browser)
     return browser.page_source
 
 
+# def save_doctors_to_txt(specialization_index):
+#     soup = get_soup(get_html(specialization_index))
+#     specialists = soup.find('select', {'name': 'SPECIALIST'})
+#     medics = specialists.find_all('option')
+#     with open(f'{m_subfolder("Medics")}/{specialization_index}', 'w') as input_file:
+#         for x in medics:
+#             input_file.write(f'{x.get("value")} - {x.text}\n')
+
+
 if __name__ == '__main__':
-    spec_id = "6106"
-    soup = get_soup(get_html(spec_id))
+    # save_doctors_to_txt("6106")  #if code incorrect ??
+    specialization_index = "6106"
+    soup = get_soup(get_html(specialization_index))
     specialists = soup.find('select', {'name': 'SPECIALIST'})
     medics = specialists.find_all('option')
-    with open(f'{m_subfolder("Medics")}/{spec_id}', 'w') as input_file:
+    with open(f'{m_subfolder("Medics")}/{specialization_index}', 'w') as input_file:
         for x in medics:
             input_file.write(f'{x.get("value")} - {x.text}\n')
-
