@@ -27,21 +27,22 @@ def get_html(specialization_index):
     return browser.page_source
 
 
-# def save_doctors_to_txt(specialization_index):
-#     soup = get_soup(get_html(specialization_index))
-#     specialists = soup.find('select', {'name': 'SPECIALIST'})
-#     medics = specialists.find_all('option')
-#     with open(f'{m_subfolder("Medics")}/{specialization_index}', 'w') as input_file:
-#         for x in medics:
-#             input_file.write(f'{x.get("value")} - {x.text}\n')
+def save_doctors_to_txt(specialization_index):
 
-
-if __name__ == '__main__':
-    # save_doctors_to_txt("6106")  #if code incorrect ??
-    specialization_index = "6106"
     soup = get_soup(get_html(specialization_index))
     specialists = soup.find('select', {'name': 'SPECIALIST'})
     medics = specialists.find_all('option')
     with open(f'{m_subfolder("Medics")}/{specialization_index}', 'w') as input_file:
         for x in medics:
             input_file.write(f'{x.get("value")} - {x.text}\n')
+
+
+if __name__ == '__main__':
+    save_doctors_to_txt("6108")  #if code incorrect ??
+    # specialization_index = "6108"
+    # soup = get_soup(get_html(specialization_index))
+    # specialists = soup.find('select', {'name': 'SPECIALIST'})
+    # medics = specialists.find_all('option')
+    # with open(f'{m_subfolder("Medics")}/{specialization_index}', 'w') as input_file:
+    #     for x in medics:
+    #         input_file.write(f'{x.get("value")} - {x.text}\n')
