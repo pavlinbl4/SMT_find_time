@@ -49,4 +49,5 @@ def create_report(subfolder_name, file_name, sheet_name, list_with_columns_names
 
 
 if __name__ == '__main__':
-    print(create_report("SMT_clinic", "appointments", 'clinic', ['doctor', 'appoinment_date', 'comments', 'ygjhghg']))
+    # print(create_report("SMT_clinic", "appointments", 'clinic', ['doctor', 'appoinment_date', 'comments', 'ygjhghg']))
+    print(create_report("Kommersant", "deleted_images", "shoot_id", ['shoot_id', "action"]))
